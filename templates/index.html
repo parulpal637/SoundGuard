@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>SoundGuard | On-Device Fan Health Monitor</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Inter, Arial, sans-serif;
+      background:
+        radial-gradient(circle at 20% 10%, #132d35 0%, transparent 35%),
+        radial-gradient(circle at 85% 30%, #10283a 0%, transparent 30%),
+        #071014;
+      color: #f4f7f8;
+      min-height: 100vh;
+    }
+
+    nav {
+      height: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 7%;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      background: rgba(7,16,20,.75);
+      backdrop-filter: blur(16px);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .logo {
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: -.5px;
+    }
+
+    .logo span {
+      color: #52e7c4;
+    }
+
+    nav a {
+      color: #aab8bd;
+      text-decoration: none;
+      margin-left: 25px;
+      font-size: 14px;
+    }
+
+    nav a:hover {
+      color: white;
+    }
+
+    .hero {
+      max-width: 1200px;
+      margin: auto;
+      padding: 90px 7% 60px;
+      display: grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap: 60px;
+      align-items: center;
+    }
+
+    .badge {
+      display: inline-block;
+      color: #52e7c4;
+      border: 1px solid rgba(82,231,196,.3);
+      background: rgba(82,231,196,.07);
+      padding: 8px 13px;
+      border-radius: 30px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .7px;
+      margin-bottom: 25px;
+    }
+
+    h1 {
+      font-size: clamp(45px, 6vw, 78px);
+      line-height: .98;
+      letter-spacing: -4px;
+      margin-bottom: 25px;
+    }
+
+    h1 span {
+      color: #52e7c4;
+    }
+
+    .hero p {
+      color: #aab8bd;
+      line-height: 1.8;
+      max-width: 610px;
+      font-size: 17px;
+    }
+
+    .buttons {
+      display: flex;
+      gap: 14px;
+      margin-top: 32px;
+      flex-wrap: wrap;
+    }
+
+    button, .github-btn {
+      border: none;
+      padding: 14px 20px;
+      border-radius: 10px;
+      font-weight: 700;
+      cursor: pointer;
+      font-size: 14px;
+      text-decoration: none;
+    }
+
+    .primary {
+      background: #52e7c4;
+      color: #06110f;
+    }
+
+    .github-btn {
+      border: 1px solid #34454c;
+      color: white;
+      background: rgba(255,255,255,.04);
+    }
+
+    .dashboard {
+      border: 1px solid rgba(255,255,255,.09);
+      border-radius: 22px;
+      padding: 22px;
+      background: rgba(14,28,34,.78);
+      box-shadow: 0 30px 80px rgba(0,0,0,.35);
+    }
+
+    .dashboard-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 22px;
+    }
+
+    .dashboard-top small {
+      color: #778a91;
+    }
+
+    .status {
+      color: #52e7c4;
+      background: rgba(82,231,196,.1);
+      padding: 7px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .monitor {
+      padding: 28px;
+      text-align: center;
+      border-radius: 18px;
+      background: #09171c;
+      border: 1px solid rgba(255,255,255,.06);
+    }
+
+    .pulse {
+      width: 125px;
+      height: 125px;
+      border-radius: 50%;
+      margin: 8px auto 22px;
+      display: grid;
+      place-items: center;
+      background: rgba(82,231,196,.08);
+      border: 1px solid rgba(82,231,196,.35);
+      box-shadow: 0 0 45px rgba(82,231,196,.09);
+      font-size: 42px;
+    }
+
+    .monitor h2 {
+      font-size: 27px;
+      color: #52e7c4;
+    }
+
+    .monitor p {
+      color: #71858c;
+      font-size: 13px;
+      margin-top: 8px;
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(3,1fr);
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .metric {
+      background: #09171c;
+      border: 1px solid rgba(255,255,255,.06);
+      border-radius: 13px;
+      padding: 15px;
+    }
+
+    .metric small {
+      color: #71858c;
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    .metric strong {
+      font-size: 16px;
+    }
+
+    section {
+      max-width: 1200px;
+      margin: auto;
+      padding: 70px 7%;
+    }
+
+    .section-label {
+      color: #52e7c4;
+      font-size: 12px;
+      letter-spacing: 2px;
+      font-weight: 800;
+      margin-bottom: 12px;
+    }
+
+    section h2 {
+      font-size: 38px;
+      letter-spacing: -1.5px;
+      margin-bottom: 15px;
+    }
+
+    .section-desc {
+      color: #84969d;
+      max-width: 650px;
+      line-height: 1.7;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(3,1fr);
+      gap: 16px;
+      margin-top: 35px;
+    }
+
+    .card {
+      background: rgba(13,27,33,.7);
+      border: 1px solid rgba(255,255,255,.07);
+      padding: 25px;
+      border-radius: 16px;
+    }
+
+    .card .icon {
+      font-size: 27px;
+      margin-bottom: 17px;
+    }
+
+    .card h3 {
+      margin-bottom: 10px;
+    }
+
+    .card p {
+      color: #7e9198;
+      line-height: 1.6;
+      font-size: 14px;
+    }
+
+    .privacy {
+      margin-top: 25px;
+      padding: 25px;
+      border-radius: 16px;
+      border: 1px solid rgba(82,231,196,.18);
+      background: rgba(82,231,196,.04);
+      display: flex;
+      gap: 20px;
+      align-items: center;
+    }
+
+    .privacy strong {
+      color: #52e7c4;
+    }
+
+    .privacy p {
+      color: #8fa1a7;
+      margin-top: 5px;
+      line-height: 1.5;
+    }
+
+    footer {
+      text-align: center;
+      color: #65777d;
+      border-top: 1px solid rgba(255,255,255,.06);
+      padding: 30px;
+      font-size: 13px;
+    }
+
+    @media(max-width: 800px) {
+      .hero {
+        grid-template-columns: 1fr;
+        padding-top: 60px;
+      }
+
+      .cards {
+        grid-template-columns: 1fr;
+      }
+
+      h1 {
+        letter-spacing: -2px;
+      }
+
+      nav .links {
+        display: none;
+      }
+
+      .metrics {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<nav>
+  <div class="logo">Sound<span>Guard</span></div>
+
+  <div class="links">
+    <a href="#how">How it works</a>
+    <a href="#technology">Technology</a>
+    <a href="https://github.com/parulpal637/SoundGuard" target="_blank">GitHub</a>
+  </div>
+</nav>
+
+
+<div class="hero">
+
+  <div>
+    <div class="badge">ON-DEVICE AI • PRIVACY FIRST</div>
+
+    <h1>
+      Hear problems<br>
+      <span>before they hurt.</span>
+    </h1>
+
+    <p>
+      SoundGuard is an offline AI fan-health monitor that uses your laptop's
+      microphone and CPU workload to identify unusual cooling sounds before
+      they become bigger performance or hardware problems.
+    </p>
+
+    <div class="buttons">
+      <button class="primary" onclick="demo()">View Monitoring Demo</button>
+
+      <a class="github-btn"
+         href="https://github.com/parulpal637/SoundGuard"
+         target="_blank">
+         View Source
+      </a>
+    </div>
+  </div>
+
+
+  <div class="dashboard">
+
+    <div class="dashboard-top">
+      <div>
+        <strong>Fan Health</strong><br>
+        <small>Local monitoring preview</small>
+      </div>
+
+      <div class="status" id="status">● HEALTHY</div>
+    </div>
+
+
+    <div class="monitor">
+
+      <div class="pulse">〰</div>
+
+      <h2 id="health">Healthy</h2>
+
+      <p id="message">
+        No abnormal sound pattern detected
+      </p>
+
+    </div>
+
+
+    <div class="metrics">
+
+      <div class="metric">
+        <small>CPU Context</small>
+        <strong id="cpu">Normal</strong>
+      </div>
+
+      <div class="metric">
+        <small>Audio</small>
+        <strong>Local Only</strong>
+      </div>
+
+      <div class="metric">
+        <small>Inference</small>
+        <strong>ONNX</strong>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+
+<section id="how">
+
+  <div class="section-label">HOW IT WORKS</div>
+
+  <h2>Your laptop already has the sensors.</h2>
+
+  <p class="section-desc">
+    SoundGuard combines short audio windows with CPU-load context instead
+    of relying on a simple loudness threshold.
+  </p>
+
+
+  <div class="cards">
+
+    <div class="card">
+      <div class="icon">🎙️</div>
+      <h3>Listen locally</h3>
+      <p>
+        Short microphone windows capture the acoustic signature of the
+        laptop cooling system.
+      </p>
+    </div>
+
+    <div class="card">
+      <div class="icon">🧠</div>
+      <h3>Understand context</h3>
+      <p>
+        Log-mel audio features are combined with CPU load so expected fan
+        behaviour can be interpreted relative to workload.
+      </p>
+    </div>
+
+    <div class="card">
+      <div class="icon">⚡</div>
+      <h3>Detect anomalies</h3>
+      <p>
+        A model trained on normal fan behaviour flags patterns that differ
+        from the calibrated healthy baseline.
+      </p>
+    </div>
+
+  </div>
+
+</section>
+
+
+<section id="technology">
+
+  <div class="section-label">ON-DEVICE AI</div>
+
+  <h2>Designed for Snapdragon laptops.</h2>
+
+  <p class="section-desc">
+    The inference pipeline is exported to ONNX and designed to use ONNX
+    Runtime with the QNN execution provider on compatible Snapdragon
+    hardware, with CPU fallback.
+  </p>
+
+
+  <div class="privacy">
+
+    <div style="font-size:35px">🔒</div>
+
+    <div>
+      <strong>Privacy by design</strong>
+
+      <p>
+        SoundGuard is designed to process monitoring data locally.
+        Live microphone audio does not need to be uploaded to a cloud service.
+      </p>
+    </div>
+
+  </div>
+
+</section>
+
+
+<footer>
+  SoundGuard • On-Device Fan Health Monitor
+</footer>
+
+
+<script>
+  function demo() {
+    const status = document.getElementById("status");
+    const health = document.getElementById("health");
+    const message = document.getElementById("message");
+    const cpu = document.getElementById("cpu");
+
+    status.innerText = "● WATCH";
+    health.innerText = "Watch";
+    health.style.color = "#ffd166";
+    status.style.color = "#ffd166";
+    cpu.innerText = "Low Load";
+
+    message.innerText =
+      "Demo: unusual acoustic activity relative to workload";
+
+    setTimeout(() => {
+      status.innerText = "● HEALTHY";
+      health.innerText = "Healthy";
+      health.style.color = "#52e7c4";
+      status.style.color = "#52e7c4";
+      cpu.innerText = "Normal";
+      message.innerText = "No abnormal sound pattern detected";
+    }, 4000);
+  }
+</script>
+
+</body>
+</html>

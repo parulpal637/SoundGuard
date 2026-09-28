@@ -1,19 +1,9 @@
-from flask import Flask
+from flask import Flask, render_template
 
 app = Flask(__name__)
 
 @app.route("/")
 def home():
-    return """
-    <html>
-        <head>
-            <title>SoundGuard</title>
-        </head>
-        <body>
-            <h1>SoundGuard</h1>
-            <h2>On-Device Fan Health Monitor</h2>
-            <p>AI-powered abnormal fan sound detection for Snapdragon laptops.</p>
-            <p>SoundGuard is running successfully.</p>
-        </body>
-    </html>
-    """
+    return render_template("index.html")
+if __name__ == "__main__":
+    app.run(debug=True)
