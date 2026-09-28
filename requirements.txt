@@ -6,3 +6,4 @@ onnxruntime
 # On Snapdragon (Windows on ARM) install the QNN build instead of plain onnxruntime:
 #   pip uninstall onnxruntime
 #   pip install onnxruntime-qnn
+Flask
